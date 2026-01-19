@@ -1,74 +1,181 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import LottieView from 'lottie-react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+  Animated,
+  Dimensions,
+  Platform,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const { width } = Dimensions.get('window');
 
-export default function HomeScreen() {
+export default function WelcomeScreen() {
+  const router = useRouter();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 1200,
+        useNativeDriver: true,
+      })
+    ]).start();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* Línea de diseño superior*/}
+      <View style={styles.topIndicator} />
+
+      <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.mainTitle}>EDD</Text>
+          <View style={styles.titleBadge}>
+            <Text style={styles.badgeText}>TECMINA</Text>
+          </View>
+        </View>
+
+        <View style={styles.animationWrapper}>
+          <LottieView
+            source={require('../../assets/images/robot.json')}
+            autoPlay
+            loop
+            style={styles.lottie}
+          />
+        </View>
+
+        <View style={styles.textBlock}>
+          <Text style={styles.welcomeText}>¡Bienvenido!</Text>
+          <Text style={styles.description}>
+            Aprende estructuras de datos de una manera visual y efectiva.
+          </Text>
+        </View>
+
+        <Pressable 
+          style={({ pressed }) => [
+            styles.mainButton,
+            pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
+          ]} 
+          onPress={() => router.push('/menu')}
+        >
+          <Text style={styles.mainButtonText}>EMPEZAR</Text>
+        </Pressable>
+      </Animated.View>
+
+      <View style={styles.bottomBar} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC', 
+  },
+  topIndicator: {
+    height: 6,
+    width: width * 0.4,
+    backgroundColor: '#120b8f',
+    alignSelf: 'center',
+    marginTop: Platform.OS === 'ios' ? 60 : 40,
+    borderRadius: 10,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 50,
+    paddingHorizontal: 30,
+  },
+  headerTextContainer: {
+    alignItems: 'center',
     flexDirection: 'row',
+  },
+  mainTitle: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#120b8f',
+    letterSpacing: -2,
+  },
+  titleBadge: {
+    backgroundColor: '#120b8f',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginLeft: 8,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  animationWrapper: {
+    width: width * 0.8,
+    height: width * 0.8,
+    backgroundColor: '#fff',
+    borderRadius: width * 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  lottie: {
+    width: '90%',
+    height: '90%',
+  },
+  textBlock: {
     alignItems: 'center',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  welcomeText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 10,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  description: {
+    fontSize: 16,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 24,
   },
+  mainButton: {
+    backgroundColor: '#120b8f',
+    width: '100%',
+    paddingVertical: 20,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mainButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
+  },
+  bottomBar: {
+    height: 4,
+    width: width * 0.2,
+    backgroundColor: '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: 20,
+    borderRadius: 10,
+  }
 });
